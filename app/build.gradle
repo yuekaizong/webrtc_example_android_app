@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 31
     defaultConfig {
         applicationId "org.appspot.apprtc"
-        minSdkVersion 16
-        targetSdkVersion 21
+        minSdkVersion 21
+        targetSdkVersion 31
         versionCode 1
         // based on this commit
         versionName "63eb65cd819b0ba7b5df34dbcc4dd756b0029b6c"
