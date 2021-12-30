@@ -87,7 +87,9 @@ public class WebSocketChannelClient {
       Log.e(TAG, "WebSocket is already connected.");
       return;
     }
+    //如果后台信令服务启动 tls=false只能用ws，用wss连接失败
     wsServerUrl = wsUrl;
+    wsServerUrl = wsUrl.replace("wss:", "ws:");
     postServerUrl = postUrl;
     closeEvent = false;
 

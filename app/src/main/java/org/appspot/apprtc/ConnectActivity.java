@@ -38,6 +38,8 @@ import java.util.Random;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import aga.songmaya.support.utils.PermissionWrapper;
+
 /**
  * Handles the initial setup where the user selects which room to join.
  */
@@ -114,6 +116,8 @@ public class ConnectActivity extends Activity {
       String room = sharedPref.getString(keyprefRoom, "");
       connectToRoom(room, true, loopback, useValuesFromIntent, runTimeMs);
     }
+
+    new PermissionWrapper(this).exec();
   }
 
   @Override

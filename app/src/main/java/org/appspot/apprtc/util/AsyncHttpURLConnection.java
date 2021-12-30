@@ -18,6 +18,8 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.Scanner;
 
+import aga.songmaya.support.utils.HttpUtils;
+
 /**
  * Asynchronous http requests implementation.
  */
@@ -55,6 +57,8 @@ public class AsyncHttpURLConnection {
 
   private void sendHttpMessage() {
     try {
+      HttpUtils.setDefaultHostnameVerify();
+      HttpUtils.trustAllHosts();
       HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
       byte[] postData = new byte[0];
       if (message != null) {

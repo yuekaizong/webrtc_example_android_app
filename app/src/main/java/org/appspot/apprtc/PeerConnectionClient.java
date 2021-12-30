@@ -567,6 +567,10 @@ public class PeerConnectionClient {
 
     queuedRemoteCandidates = new ArrayList<>();
 
+    //数据错误，前两项需要删除
+    signalingParameters.iceServers.remove(0);
+    signalingParameters.iceServers.remove(0);
+
     PeerConnection.RTCConfiguration rtcConfig =
         new PeerConnection.RTCConfiguration(signalingParameters.iceServers);
     // TCP candidates are only useful when connecting to a server that supports
