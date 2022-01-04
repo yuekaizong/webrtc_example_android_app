@@ -32,6 +32,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Toast;
+
+import java.io.File;
 import java.io.IOException;
 import java.lang.RuntimeException;
 import java.util.ArrayList;
@@ -62,6 +64,7 @@ import org.webrtc.VideoFrame;
 import org.webrtc.VideoSink;
 
 import aga.songmaya.support.utils.AndroidBug5497Workaround;
+import aga.songmaya.support.utils.FileExt;
 
 /**
  * Activity for peer connection call setup, call waiting
@@ -555,9 +558,16 @@ public class CallActivity extends Activity implements AppRTCClient.SignalingEven
 
 
   @Override
-  public void onChatSend(String text) {
+  public void onChatSend(String text, String type) {
     if (peerConnectionClient != null) {
-      peerConnectionClient.sendText(text,"text");
+      peerConnectionClient.sendText(text,type);
+    }
+  }
+
+  @Override
+  public void onChatSend(byte[] data) {
+    if (peerConnectionClient != null) {
+      peerConnectionClient.sendBinary(data);
     }
   }
 
@@ -981,7 +991,11 @@ public class CallActivity extends Activity implements AppRTCClient.SignalingEven
   }
 
   @Override
-  public void onPeerConnectionGotDataMsg(final String msg) {
+  public void onPeerConnectionGotDataMsg(final byte[] data, final String msg, final boolean binary) {
+    if (binary){
+      FileExt.save(this, data);
+    }else{
       runOnUiThread(()->logAndToast(msg));
+    }
   }
 }

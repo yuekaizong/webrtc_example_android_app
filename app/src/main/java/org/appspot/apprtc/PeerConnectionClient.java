@@ -319,7 +319,7 @@ public class PeerConnectionClient {
     /**
      * Callback fired when chat arrives, binary or text.
      */
-    void onPeerConnectionGotDataMsg(final String msg);
+    void onPeerConnectionGotDataMsg(final byte[] data, final String msg,boolean binary);
   }
 
   /**
@@ -1187,6 +1187,15 @@ public class PeerConnectionClient {
     }
   }
 
+  public void sendBinary(byte[] data){
+    if (dataChannel != null) {
+      ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+      DataChannel.Buffer buffer = new DataChannel.Buffer(byteBuffer, true);
+      dataChannel.send(buffer);
+      Log.d(TAG, "send Binary complete");
+    }
+  }
+
   // Implementation detail: observe ICE & stream changes and react accordingly.
   private class PCObserver implements PeerConnection.Observer {
     @Override
@@ -1280,13 +1289,14 @@ public class PeerConnectionClient {
 
           String strData;
           if (buffer.binary) {
-            strData = Base64.encodeToString(bytes, Base64.NO_WRAP);
-            Log.d(TAG, "Got binary msg: " + strData + " over " + dc);
+            //strData = Base64.encodeToString(bytes, Base64.NO_WRAP);
+            events.onPeerConnectionGotDataMsg(bytes, null, buffer.binary);
+            Log.d(TAG, "Got binary msg: over " + dc);
           }else {
             strData = new String(bytes, Charset.forName("UTF-8"));
             Log.d(TAG, "Got msg: " + strData + " over " + dc);
+            events.onPeerConnectionGotDataMsg(null, strData,buffer.binary);
           }
-          events.onPeerConnectionGotDataMsg(strData);
         }
       });
     }

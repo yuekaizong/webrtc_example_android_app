@@ -18,6 +18,7 @@ public class PermissionWrapper {
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.BLUETOOTH,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
     };
 
     private Activity activity;

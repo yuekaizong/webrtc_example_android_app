@@ -12,6 +12,7 @@ package org.appspot.apprtc;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -24,6 +25,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import org.webrtc.RendererCommon.ScalingType;
+
+import aga.songmaya.support.utils.FileExt;
 
 /**
  * Fragment for call control.
@@ -39,6 +42,7 @@ public class CallFragment extends Fragment {
   private ScalingType scalingType;
   private EditText chatArea;
   private boolean videoCallEnabled = true;
+  private FileExt fileExt;
 
   /**
    * Call control interface for container activity.
@@ -49,7 +53,8 @@ public class CallFragment extends Fragment {
     void onVideoScalingSwitch(ScalingType scalingType);
     void onCaptureFormatChange(int width, int height, int framerate);
     boolean onToggleMic();
-    void onChatSend(String text);
+    void onChatSend(String text, String type);
+    void onChatSend(byte[] data);
   }
 
   @Override
@@ -129,8 +134,9 @@ public class CallFragment extends Fragment {
     });
 
     controlView.findViewById(R.id.button_file_send).setOnClickListener(view->{
-
+      fileExt.pickFile(CallFragment.this);
     });
+    fileExt = new FileExt(getActivity());
 
     return controlView;
   }
@@ -138,7 +144,7 @@ public class CallFragment extends Fragment {
   private void sendAndResetEt(){
     String text = chatArea.getText().toString().trim();
     if(text.length() > 0) {
-      callEvents.onChatSend(text);
+      callEvents.onChatSend(text, "text");
 
       //clear text field after send
       chatArea.setText("");
@@ -176,5 +182,14 @@ public class CallFragment extends Fragment {
   public void onAttach(Activity activity) {
     super.onAttach(activity);
     callEvents = (OnCallEvents) activity;
+  }
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    byte[] result = fileExt.onActivityResult(requestCode, resultCode, data);
+    if (result!=null){
+      callEvents.onChatSend(result);
+    }
   }
 }
