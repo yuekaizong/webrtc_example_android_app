@@ -124,6 +124,10 @@ public class CallFragment extends Fragment {
       }
     });
 
+    controlView.findViewById(R.id.chat_send).setOnClickListener(view->{
+      sendAndResetEt();
+    });
+
     return controlView;
   }
 
