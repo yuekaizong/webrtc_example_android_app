@@ -61,6 +61,8 @@ import org.webrtc.VideoFileRenderer;
 import org.webrtc.VideoFrame;
 import org.webrtc.VideoSink;
 
+import aga.songmaya.support.utils.AndroidBug5497Workaround;
+
 /**
  * Activity for peer connection call setup, call waiting
  * and call view.
@@ -200,6 +202,9 @@ public class CallActivity extends Activity implements AppRTCClient.SignalingEven
         | LayoutParams.FLAG_SHOW_WHEN_LOCKED | LayoutParams.FLAG_TURN_SCREEN_ON);
     getWindow().getDecorView().setSystemUiVisibility(getSystemUiVisibility());
     setContentView(R.layout.activity_call);
+
+    //设置输入框在软键盘之上
+    AndroidBug5497Workaround.assistActivity(this);
 
     connected = false;
     signalingParameters = null;
