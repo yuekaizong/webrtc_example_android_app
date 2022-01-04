@@ -10,7 +10,7 @@
 
 package org.appspot.apprtc;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -21,7 +21,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.webrtc.IceCandidate;
-import org.webrtc.PeerConnection;
 import org.webrtc.SessionDescription;
 
 /**
