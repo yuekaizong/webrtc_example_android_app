@@ -128,6 +128,10 @@ public class CallFragment extends Fragment {
       sendAndResetEt();
     });
 
+    controlView.findViewById(R.id.button_file_send).setOnClickListener(view->{
+
+    });
+
     return controlView;
   }
 

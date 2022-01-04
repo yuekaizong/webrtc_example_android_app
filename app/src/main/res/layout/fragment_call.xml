@@ -52,6 +52,11 @@
             android:layout_marginEnd="8dp"
             android:background="@android:drawable/ic_btn_speak_now"
             android:contentDescription="@string/toggle_mic" />
+        <ImageButton
+            android:id="@+id/button_file_send"
+            android:background="@android:drawable/ic_menu_send"
+            android:layout_width="48dp"
+            android:layout_height="48dp"/>
     </LinearLayout>
 
     <TextView
