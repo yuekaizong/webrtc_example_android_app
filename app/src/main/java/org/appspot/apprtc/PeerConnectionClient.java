@@ -319,7 +319,7 @@ public class PeerConnectionClient {
     /**
      * Callback fired when chat arrives, binary or text.
      */
-    void onPeerConnectionGotDataMsg(final byte[] data, final String msg,boolean binary);
+    void onPeerConnectionGotDataMsg(final byte[] data, boolean binary);
   }
 
   /**
@@ -1290,13 +1290,12 @@ public class PeerConnectionClient {
           String strData;
           if (buffer.binary) {
             //strData = Base64.encodeToString(bytes, Base64.NO_WRAP);
-            events.onPeerConnectionGotDataMsg(bytes, null, buffer.binary);
             Log.d(TAG, "Got binary msg: over " + dc);
           }else {
             strData = new String(bytes, Charset.forName("UTF-8"));
             Log.d(TAG, "Got msg: " + strData + " over " + dc);
-            events.onPeerConnectionGotDataMsg(null, strData,buffer.binary);
           }
+          events.onPeerConnectionGotDataMsg(bytes, buffer.binary);
         }
       });
     }

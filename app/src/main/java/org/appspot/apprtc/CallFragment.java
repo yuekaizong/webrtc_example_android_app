@@ -53,7 +53,7 @@ public class CallFragment extends Fragment {
     void onVideoScalingSwitch(ScalingType scalingType);
     void onCaptureFormatChange(int width, int height, int framerate);
     boolean onToggleMic();
-    void onChatSend(String text, String type);
+    void onChatSend(String text);
     void onChatSend(byte[] data);
   }
 
@@ -144,7 +144,7 @@ public class CallFragment extends Fragment {
   private void sendAndResetEt(){
     String text = chatArea.getText().toString().trim();
     if(text.length() > 0) {
-      callEvents.onChatSend(text, "text");
+      callEvents.onChatSend(text);
 
       //clear text field after send
       chatArea.setText("");
@@ -187,9 +187,6 @@ public class CallFragment extends Fragment {
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
-    byte[] result = fileExt.onActivityResult(requestCode, resultCode, data);
-    if (result!=null){
-      callEvents.onChatSend(result);
-    }
+    fileExt.onActivityResult(callEvents, requestCode, resultCode, data);
   }
 }
