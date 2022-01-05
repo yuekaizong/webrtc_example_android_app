@@ -9,15 +9,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 
+import org.apache.commons.io.IOUtils;
 import org.appspot.apprtc.CallFragment;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 
 public class FileExt {
@@ -27,6 +31,9 @@ public class FileExt {
     private Activity activity;
     public static final String FLAG = "[文件]";
     private static String receiveFilename;
+    private static long receiveFileSize;
+    private static long receiveFileCount = 0;
+    private static int fileReceiveState = 0;
 
     public FileExt(Activity activity) {
         this.activity = activity;
@@ -65,9 +72,14 @@ public class FileExt {
 
     public static void extractFilename(String msg) {
         if (!msg.startsWith(FLAG)) return;
+        receiveFileCount = 0;
+        fileReceiveState = 1;
         String[] str = msg.split(":");
         if (str.length >= 1) {
-            receiveFilename = str[0];
+            receiveFilename = str[1];
+        }
+        if (str.length >= 2) {
+            receiveFileSize = Long.parseLong(str[2]);
         }
     }
 
@@ -79,8 +91,15 @@ public class FileExt {
                 File file = new File(path);
                 if (file.exists()) {
                     callEvents.onChatSend(genFileMsg(path));
-                    byte[] content = org.apache.commons.io.FileUtils.readFileToByteArray(new File(path));
-                    callEvents.onChatSend(content);
+/*                    byte[] content = org.apache.commons.io.FileUtils.readFileToByteArray(new File(path));
+                    callEvents.onChatSend(content);*/
+
+                    FileInputStream stream = new FileInputStream(file);
+                    byte[] buffer = new byte[16 * 1024];
+                    while (stream.read(buffer) != -1) {
+                        callEvents.onChatSend(buffer);
+                    }
+                    IOUtils.close(stream);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -89,27 +108,70 @@ public class FileExt {
     }
 
     public static void save(final Activity activity, byte[] data) {
-        String filename = activity.getCacheDir().getAbsolutePath() + File.separator + System.currentTimeMillis() + ".jpg";
+        try {
+            String filepath = activity.getCacheDir().getAbsolutePath() + File.separator + System.currentTimeMillis() + ".unknown";
+            if (!TextUtils.isEmpty(receiveFilename)) {
+                filepath = activity.getCacheDir().getAbsolutePath() + File.separator + receiveFilename;
+            }
+            File file = new File(filepath);
 
-        try (OutputStream out = new FileOutputStream(filename)) {
-            out.write(data);
-            out.close();
-            saveImage2Album(activity, new File(filename));
-            Log.e(TAG, "save path:" + filename);
-            activity.runOnUiThread(() -> {
-                new AlertDialog.Builder(activity)
-                        .setTitle("文件已保存到相册")
-                        .setNegativeButton("查看", ((dialog, which) -> {
-                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                            intent.setType("*/*");//无类型限制
-                            intent.addCategory(Intent.CATEGORY_OPENABLE);
-                            activity.startActivity(intent);
-                        }))
-                        .show();
-            });
+            if (fileReceiveState == 1) {
+                Files.write(Paths.get(filepath), data);
+            } else {
+                Files.write(Paths.get(filepath), data, StandardOpenOption.APPEND);
+            }
+            fileReceiveState = 2;
+            receiveFileCount += data.length;
+            Log.d(TAG, String.format("receive file size=%s, count=%s", receiveFileSize, receiveFileCount));
+
+
+            if (receiveFileCount >= receiveFileSize) {
+                receiveFileCount = 0;
+                fileReceiveState = 0;
+                if (FileUtils.isImage(filepath)) {
+                    saveImage2Album(activity, file);
+                } else if (FileUtils.isVideo(filepath)) {
+                    saveVideo2Album(activity, file);
+                }
+
+                Log.e(TAG, "save path:" + filepath);
+                activity.runOnUiThread(() -> {
+                    new AlertDialog.Builder(activity)
+                            .setTitle("查看接收到的文件")
+                            .setNegativeButton("查看", ((dialog, which) -> {
+                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                                intent.setType("*/*");//无类型限制
+                                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                activity.startActivity(intent);
+                            }))
+                            .setPositiveButton("取消", null)
+                            .show();
+                });
+            }
         } catch (Exception e) {
-            Log.e(TAG, "save fail", e);
+            receiveFileCount = 0;
+            fileReceiveState = 0;
+            Log.e(TAG, "save:", e);
         }
+//        try (OutputStream out = new FileOutputStream(filepath)) {
+//            out.write(data);
+//            out.close();
+//            saveImage2Album(activity, new File(filepath));
+//            Log.e(TAG, "save path:" + filepath);
+//            activity.runOnUiThread(() -> {
+//                new AlertDialog.Builder(activity)
+//                        .setTitle("文件已保存到相册")
+//                        .setNegativeButton("查看", ((dialog, which) -> {
+//                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//                            intent.setType("*/*");//无类型限制
+//                            intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                            activity.startActivity(intent);
+//                        }))
+//                        .show();
+//            });
+//        } catch (Exception e) {
+//            Log.e(TAG, "save fail", e);
+//        }
     }
 
     public static void saveImage2Album(Context context, File mediaFile) {

@@ -1192,7 +1192,7 @@ public class PeerConnectionClient {
       ByteBuffer byteBuffer = ByteBuffer.wrap(data);
       DataChannel.Buffer buffer = new DataChannel.Buffer(byteBuffer, true);
       dataChannel.send(buffer);
-      Log.d(TAG, "send Binary complete");
+      Log.d(TAG, "send Binary len="+data.length);
     }
   }
 
