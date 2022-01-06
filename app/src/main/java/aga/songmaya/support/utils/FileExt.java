@@ -109,10 +109,11 @@ public class FileExt {
 
     public static void save(final Activity activity, byte[] data) {
         try {
-            String filepath = activity.getCacheDir().getAbsolutePath() + File.separator + System.currentTimeMillis() + ".unknown";
+            String filepath = FileUtils.getDiskCacheDir(activity) + File.separator + System.currentTimeMillis() + ".unknown";
             if (!TextUtils.isEmpty(receiveFilename)) {
-                filepath = activity.getCacheDir().getAbsolutePath() + File.separator + receiveFilename;
+                filepath = FileUtils.getDiskCacheDir(activity) + File.separator + receiveFilename;
             }
+            Log.d(TAG, "save filepath "+filepath);
             File file = new File(filepath);
 
             if (fileReceiveState == 1) {
@@ -191,7 +192,6 @@ public class FileExt {
         ContentValues localContentValues = getVideoContentValues(context, file, System.currentTimeMillis());
         Uri localUri = localContentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, localContentValues);
         context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, localUri));
-
     }
 
     public static ContentValues getVideoContentValues(Context paramContext, File paramFile, long paramLong) {
@@ -206,6 +206,7 @@ public class FileExt {
         localContentValues.put(MediaStore.Images.Media.SIZE, Long.valueOf(paramFile.length()));
         return localContentValues;
     }
+
 
 
 }

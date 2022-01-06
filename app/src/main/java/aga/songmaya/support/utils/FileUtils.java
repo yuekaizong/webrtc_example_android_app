@@ -759,5 +759,16 @@ public class FileUtils {
     public static boolean isImage(String url){
         return url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png");
     }
+
+    public static String getDiskCacheDir(Context context) {
+        String cachePath = null;
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
+                || !Environment.isExternalStorageRemovable()) {
+            cachePath = context.getExternalCacheDir().getPath();
+        } else {
+            cachePath = context.getCacheDir().getPath();
+        }
+        return cachePath;
+    }
 }
 
